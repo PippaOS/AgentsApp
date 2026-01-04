@@ -1,0 +1,25 @@
+services:
+  runner:
+    build:
+      context: .
+      dockerfile: runner/Dockerfile
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      - RUNNER_SHARED_DIR=/shared
+      - NATS_URL=nats://nats:4222
+    volumes:
+      - /tmp/pippachat-shared:/shared
+      # Read-only view of the local codebase for tools to inspect.
+      # This does NOT allow writes back into the repo from inside the container.
+      - ./src:/workspace/src:ro
+    depends_on:
+      - nats
+
+  nats:
+    image: nats:latest
+    ports:
+      - "127.0.0.1:4222:4222"  # Client connections
+      - "127.0.0.1:8222:8222"  # HTTP monitoring
+      - "127.0.0.1:6222:6222"  # Cluster routing
+    command: ["-m", "8222"]
