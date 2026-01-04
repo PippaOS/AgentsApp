@@ -1,17 +1,24 @@
 services:
   runner:
+    runtime: runsc  # <--- This tells the container runtime to use the tank we just purchased.
     build:
       context: .
       dockerfile: runner/Dockerfile
-    ports:
-      - "127.0.0.1:8080:8080"
     environment:
       - RUNNER_SHARED_DIR=/shared
       - NATS_URL=nats://nats:4222
+    # Standard fortress protocol. If they get in, they're stuck in the mud.
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     volumes:
-      - /tmp/pippachat-shared:/shared
-      # Read-only view of the local codebase for tools to inspect.
-      # This does NOT allow writes back into the repo from inside the container.
+      - /tmp/pippachat-shared:/shared:ro
+      # Eyes only. They can read the playbook, but they ain't changing a single number.
+      # No writes back to the house. Everything stays clean.
       - ./src:/workspace/src:ro
     depends_on:
       - nats
@@ -19,7 +26,7 @@ services:
   nats:
     image: nats:latest
     ports:
-      - "127.0.0.1:4222:4222"  # Client connections
-      - "127.0.0.1:8222:8222"  # HTTP monitoring
-      - "127.0.0.1:6222:6222"  # Cluster routing
+      - "127.0.0.1:4222:4222"  # Main line for the associates
+      - "127.0.0.1:8222:8222"  # Surveillance feed
+      - "127.0.0.1:6222:6222"  # Backroom chatter
     command: ["-m", "8222"]
