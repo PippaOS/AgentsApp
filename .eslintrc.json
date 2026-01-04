@@ -16,9 +16,6 @@
     "eslint-plugin-react-compiler"
   ],
   "parser": "@typescript-eslint/parser",
-  "rules": {
-    "react-compiler/react-compiler": "error"
-  },
   "settings": {
     "import/resolver": {
       "node": {
@@ -28,9 +25,19 @@
           ".ts",
           ".tsx",
           ".d.ts",
-          ".json"
+          ".json",
+          ".md"
         ]
       }
     }
+  },
+  "rules": {
+    "react-compiler/react-compiler": "error",
+    "import/no-unresolved": [
+      "error",
+      {
+        "ignore": ["\\.md\\?raw$"]
+      }
+    ]
   }
 }

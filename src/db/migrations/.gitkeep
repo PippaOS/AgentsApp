@@ -1,0 +1,19 @@
+-- Example migration file
+-- To create a new migration, create a file named: NNN_description.sql
+-- where NNN is a sequential number (e.g., 001, 002, 003)
+
+-- Example: 001_create_users_table.sql
+-- 
+-- CREATE TABLE users (
+--   id INTEGER PRIMARY KEY AUTOINCREMENT,
+--   name TEXT NOT NULL,
+--   email TEXT NOT NULL UNIQUE,
+--   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+-- );
+-- 
+-- CREATE INDEX idx_users_email ON users(email);
+
+-- Optionally, you can add a down migration by adding this comment:
+-- -- +migrate Down
+-- DROP TABLE IF EXISTS users;
+

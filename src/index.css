@@ -1,0 +1,663 @@
+@import "tailwindcss";
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+  margin: 0;
+  padding: 0;
+  @apply bg-[#181818] text-[#cccccc];
+}
+
+/* Global scrollbar styling - matches ChatSidebar style */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(136, 136, 136, 0.4) transparent;
+}
+
+/* Webkit/Chromium scrollbar styling for Electron - global */
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+*::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+  width: 0;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-track-piece {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(136, 136, 136, 0.4);
+  border: none;
+  box-shadow: none;
+  min-height: 20px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(136, 136, 136, 0.6);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+*::-webkit-resizer {
+  background: transparent;
+}
+
+/* Explicitly remove all border-radius from all scrollbar components - global */
+*::-webkit-scrollbar,
+*::-webkit-scrollbar-button,
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track-piece,
+*::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb:window-inactive,
+*::-webkit-scrollbar-corner,
+*::-webkit-resizer {
+  border-radius: 0 !important;
+  -webkit-border-radius: 0 !important;
+}
+
+/* Chat Sidebar Styles */
+.assistant-bubble {
+  @apply bg-transparent;
+}
+
+/* Temporal Virtualization: Smooth scroll for history re-injection */
+.sidebar-messages-area {
+  scroll-behavior: smooth;
+}
+
+/* History Vault: CSS containment for layout stability when re-injected */
+.history-vault {
+  contain: paint;
+}
+
+/* Pinned user prompt: allow long prompts to scroll */
+.user-message-text-scroll {
+  /* Tailwind text-base line-height is ~1.5rem; py-3 adds 1.5rem padding total.
+     4 lines => 4 * 1.5rem + 1.5rem = 7.5rem */
+  max-height: 7.5rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+/* User message chevron: fade circle to "merge" nearby text */
+.user-message-actions-fade {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Matches the user message bubble background (#2a2a2a) */
+  background: radial-gradient(
+    circle,
+    rgba(42, 42, 42, 0.98) 0%,
+    rgba(42, 42, 42, 0.98) 45%,
+    rgba(42, 42, 42, 0.0) 78%
+  );
+}
+
+/* Keep the current user prompt visible while reading responses */
+.pinned-user-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #181818;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+/* History Sentinel: Subtle visual cue */
+.history-sentinel {
+  @apply border-b border-[#2a2a2a];
+}
+
+/* Markdown Content Styles */
+.markdown-content {
+  @apply w-full;
+}
+
+/* Middle Panel (Main Content) Dark Theme Overrides */
+#main-content {
+  @apply text-[#cccccc];
+}
+
+#main-content h1, 
+#main-content h2, 
+#main-content h3 {
+  @apply text-white;
+}
+
+#main-content .bg-white {
+  @apply bg-[#2b2b2b];
+}
+
+#main-content .bg-gray-50 {
+  @apply bg-[#252525];
+}
+
+#main-content .border-gray-200,
+#main-content .border-gray-100,
+#main-content .border-gray-300,
+#main-content .border-gray-900 {
+  @apply border-[#333333];
+}
+
+#main-content .text-gray-900 {
+  @apply text-white;
+}
+
+#main-content .text-gray-700,
+#main-content .text-gray-600,
+#main-content .text-gray-500 {
+  @apply text-[#aaaaaa];
+}
+
+#main-content input, 
+#main-content select, 
+#main-content textarea {
+  @apply bg-[#2b2b2b] text-white border-[#333333];
+}
+
+/* Custom checkbox styling */
+input[type="checkbox"] {
+  accent-color: #4a4a4a;
+  cursor: pointer;
+}
+
+input[type="checkbox"]:checked {
+  accent-color: #4a4a4a;
+  background-color: #4a4a4a;
+}
+
+#main-content button.bg-gray-900 {
+  @apply bg-[#333333] hover:bg-[#444444] text-white;
+}
+
+#main-content .hover\:bg-gray-50:hover {
+  @apply bg-[#2d2d2d];
+}
+
+/* Left Sidebar Dark Theme Overrides (for IDE-style list rows inside sidebar) */
+#sidebar .text-gray-900 {
+  @apply text-white;
+}
+
+#sidebar .text-gray-700,
+#sidebar .text-gray-600,
+#sidebar .text-gray-500 {
+  @apply text-[#aaaaaa];
+}
+
+#sidebar .text-gray-400 {
+  @apply text-[#888888];
+}
+
+#sidebar .hover\:bg-gray-50:hover {
+  @apply bg-[#2d2d2d];
+}
+
+#main-content .bg-blue-50 {
+  @apply bg-[#1e293b] border-[#1e3a8a] text-blue-200;
+}
+
+.markdown-content p {
+  @apply mb-2 last:mb-0;
+}
+
+.markdown-content > *:first-child {
+  @apply mt-0;
+}
+
+.markdown-content > *:last-child {
+  @apply mb-0;
+}
+
+/* Copy button row below text */
+.assistant-bubble {
+  position: relative;
+}
+
+.markdown-content-wrapper {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+/* Copy button row container - appears below the markdown content */
+.copy-button-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* Copy button - normal flow, appears on its own row */
+.copy-button-row-btn {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* Headings */
+.markdown-content h1 {
+  @apply text-2xl font-bold mt-6 mb-3 text-white;
+}
+
+.markdown-content h2 {
+  @apply text-xl font-bold mt-5 mb-2 text-white;
+}
+
+.markdown-content h3 {
+  @apply text-lg font-semibold mt-4 mb-2 text-white;
+}
+
+.markdown-content h4 {
+  @apply text-base font-semibold mt-3 mb-2 text-white;
+}
+
+.markdown-content h5 {
+  @apply text-sm font-semibold mt-3 mb-1 text-white;
+}
+
+.markdown-content h6 {
+  @apply text-sm font-semibold mt-2 mb-1 text-[#b2b2b2];
+}
+
+/* Lists */
+.markdown-content ul {
+  @apply list-disc list-outside ml-5 mb-3 space-y-1;
+}
+
+.markdown-content ol {
+  @apply list-decimal list-outside ml-5 mb-3 space-y-1;
+}
+
+.markdown-content li {
+  @apply text-base text-[#b2b2b2];
+}
+
+.markdown-content li > p {
+  @apply mb-1;
+}
+
+/* Links */
+.markdown-content a {
+  @apply text-blue-400 hover:text-blue-300 underline;
+}
+
+/* Blockquotes */
+.markdown-content blockquote {
+  @apply border-l-4 border-[#444444] pl-4 py-1 my-3 italic text-[#888888];
+}
+
+/* Inline Code */
+.markdown-content .inline-code {
+  @apply bg-[#2b2b2b] text-[#cccccc] px-1.5 py-0.5 rounded text-[13px] font-mono;
+}
+
+/* Tables */
+.markdown-content table {
+  @apply w-full border-collapse mb-3;
+}
+
+.markdown-content th {
+  @apply bg-[#2b2b2b] border border-[#333333] px-3 py-2 text-left font-semibold text-gray-200;
+}
+
+.markdown-content td {
+  @apply border border-[#333333] px-3 py-2 text-[#b2b2b2];
+}
+
+/* Horizontal Rule */
+.markdown-content hr {
+  @apply border-t border-[#333333] my-4;
+}
+
+/* Reasoning Specific Markdown Overrides */
+.reasoning-markdown h1,
+.reasoning-markdown h2,
+.reasoning-markdown h3,
+.reasoning-markdown h4,
+.reasoning-markdown h5,
+.reasoning-markdown h6,
+.reasoning-markdown strong {
+  color: #6d6d6d !important;
+}
+
+.reasoning-markdown p,
+.reasoning-markdown li,
+.reasoning-markdown em {
+  color: #6d6d6d !important;
+}
+
+/* Strong and Emphasis */
+.markdown-content strong {
+  @apply font-bold;
+}
+
+.markdown-content em {
+  @apply italic text-[#b2b2b2];
+}
+
+/* Code Block Wrapper */
+.code-block-wrapper {
+  @apply relative mb-3 border border-[#2a2a2a] bg-transparent pb-2;
+}
+
+.code-block-wrapper.code-block-borderless {
+  border: none !important;
+}
+
+.code-block-wrapper.code-block-borderless pre {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.code-block-header {
+  @apply flex items-center justify-between mb-0 px-3 pt-2;
+}
+
+.code-block-language {
+  @apply text-xs font-mono text-[#888888] uppercase;
+}
+
+.code-menu-container {
+  @apply relative;
+}
+
+.code-menu-btn {
+  @apply flex items-center justify-center p-1 text-[#6d6d6d] 
+         hover:text-white transition-colors;
+  cursor: pointer;
+  background: transparent;
+}
+
+.code-menu-btn:hover {
+  cursor: pointer;
+}
+
+.code-menu-btn:active {
+  @apply scale-95;
+}
+
+.code-menu-btn svg {
+  @apply flex-shrink-0;
+  color: currentColor;
+  stroke: currentColor;
+}
+
+.code-menu-popup {
+  @apply absolute right-0 top-6 z-50 hidden min-w-[120px] 
+         bg-[#2a2a2a] rounded-lg shadow-lg border border-[#333333] overflow-hidden;
+}
+
+.code-menu-container.active .code-menu-popup {
+  @apply block;
+}
+
+.code-menu-item {
+  @apply w-full px-3 py-2 text-left text-sm text-[#cccccc] 
+         hover:bg-[#333333] transition-colors cursor-pointer;
+}
+
+.code-menu-item:hover {
+  @apply text-white;
+}
+
+/* Code Block */
+.code-block-wrapper pre {
+  @apply m-0 px-3 py-0 bg-transparent overflow-x-auto pb-1;
+  margin-top: 0;
+}
+
+.code-block-wrapper pre code {
+  @apply block font-mono text-[13px] leading-relaxed text-[#cccccc];
+}
+
+/* VS Code Dark Modern Syntax Palette Override */
+.hljs-keyword, .hljs-operator, .hljs-meta .hljs-keyword { color: #569cd6; } /* Blue */
+.hljs-string { color: #ce9178; }                                          /* Orange/Brown */
+.hljs-comment { color: #6a9955; font-style: italic; }                      /* Green */
+.hljs-function, .hljs-title.function_ { color: #dcdcaa; }                 /* Yellow */
+.hljs-number, .hljs-literal { color: #b5cea8; }                           /* Light Green */
+.hljs-type, .hljs-class, .hljs-title.class_, .hljs-built_in { color: #4ec9b0; } /* Teal/Cyan */
+.hljs-variable, .hljs-attr, .hljs-property { color: #9cdcfe; }            /* Light Blue */
+.hljs-params { color: #9cdcfe; }                                          /* Light Blue */
+.hljs-tag { color: #808080; }                                             /* Grey Tags */
+.hljs-name { color: #569cd6; }                                            /* Blue Tags */
+
+/* Override highlight.js background */
+.code-block-wrapper .hljs {
+  @apply bg-transparent;
+}
+
+/* Streaming Animation */
+.streaming-round {
+  @apply mb-4;
+}
+
+/* Text shimmer animation for running tool calls */
+@keyframes text-shimmer {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #6d6d6d 0%,
+    #6d6d6d 35%,
+    #b8b8b8 50%,
+    #6d6d6d 65%,
+    #6d6d6d 100%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-shimmer 2s linear infinite;
+}
+
+/* Custom grey scrollbar */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #555 transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #555;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: #666;
+}
+
+/* Custom sidebar scrollbar - light grey, square edges, reduced opacity */
+.sidebar-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(136, 136, 136, 0.4) transparent;
+  scrollbar-gutter: stable;
+}
+
+/* Webkit/Chromium scrollbar styling for Electron */
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+  width: 0;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-track-piece {
+  background: transparent;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(136, 136, 136, 0.4);
+  border: none;
+  box-shadow: none;
+  min-height: 20px;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(136, 136, 136, 0.6);
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Explicitly remove all border-radius from all scrollbar components */
+.sidebar-scrollbar::-webkit-scrollbar,
+.sidebar-scrollbar::-webkit-scrollbar-button,
+.sidebar-scrollbar::-webkit-scrollbar-track,
+.sidebar-scrollbar::-webkit-scrollbar-track-piece,
+.sidebar-scrollbar::-webkit-scrollbar-thumb,
+.sidebar-scrollbar::-webkit-scrollbar-thumb:window-inactive,
+.sidebar-scrollbar::-webkit-scrollbar-corner,
+.sidebar-scrollbar::-webkit-resizer {
+  border-radius: 0 !important;
+  -webkit-border-radius: 0 !important;
+}
+
+/* ChatList scrollbar - hidden by default, shown on hover */
+.chat-list-scrollbar {
+  /* Keep scrollbar gutter/width stable to avoid layout shift on hover */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: transparent transparent;
+  /* Reserve space only for the (right-side) scrollbar, not both edges */
+  scrollbar-gutter: stable;
+}
+
+.chat-list-scrollbar::-webkit-scrollbar {
+  /* Always reserve the same scrollbar width; visually hide it by default */
+  width: 5px;
+  height: 5px;
+  background: transparent;
+}
+
+/* Visually hide scrollbar thumb by default (but keep width reserved) */
+.chat-list-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  min-height: 20px;
+}
+
+/* Show scrollbar when hovering anywhere in the ChatList container */
+.chat-list-container:hover .chat-list-scrollbar {
+  scrollbar-color: rgba(136, 136, 136, 0.4) transparent;
+}
+
+.chat-list-container:hover .chat-list-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.chat-list-container:hover .chat-list-scrollbar::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+  width: 0;
+}
+
+.chat-list-container:hover .chat-list-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-list-container:hover .chat-list-scrollbar::-webkit-scrollbar-track-piece {
+  background: transparent;
+}
+
+.chat-list-container:hover .chat-list-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(136, 136, 136, 0.4);
+  border: none;
+  box-shadow: none;
+  min-height: 20px;
+}
+
+.chat-list-container:hover .chat-list-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(136, 136, 136, 0.6);
+}
+
+.chat-list-container:hover .chat-list-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.chat-list-container:hover .chat-list-scrollbar::-webkit-scrollbar,
+.chat-list-container:hover .chat-list-scrollbar::-webkit-scrollbar-button,
+.chat-list-container:hover .chat-list-scrollbar::-webkit-scrollbar-track,
+.chat-list-container:hover .chat-list-scrollbar::-webkit-scrollbar-track-piece,
+.chat-list-container:hover .chat-list-scrollbar::-webkit-scrollbar-thumb,
+.chat-list-container:hover .chat-list-scrollbar::-webkit-scrollbar-thumb:window-inactive,
+.chat-list-container:hover .chat-list-scrollbar::-webkit-scrollbar-corner,
+.chat-list-container:hover .chat-list-scrollbar::-webkit-scrollbar-resizer {
+  border-radius: 0 !important;
+  -webkit-border-radius: 0 !important;
+}
+
+/* Override main-content form styling for chat input area */
+.sidebar-input-area input,
+.sidebar-input-area select,
+.sidebar-input-area textarea {
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+/* Remove focus ring from chat input area and sidebar items */
+.sidebar-input-area *,
+.sidebar-input-area *:focus,
+.sidebar-input-area *:focus-within,
+.sidebar-input-area *:active,
+.sidebar-input-area *:focus-visible,
+.sidebar-item,
+.sidebar-item:focus,
+.sidebar-item:focus-within,
+.sidebar-item:active,
+.sidebar-item:focus-visible,
+.sidebar-header-btn,
+.sidebar-header-btn:focus,
+.sidebar-header-btn:focus-within,
+.sidebar-header-btn:active,
+.sidebar-header-btn:focus-visible,
+.sidebar-header-btn svg {
+  outline: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  ring: 0 !important;
+  filter: none !important;
+  --tw-ring-shadow: none !important;
+  --tw-shadow: none !important;
+}
