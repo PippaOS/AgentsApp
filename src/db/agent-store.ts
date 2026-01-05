@@ -52,6 +52,11 @@ export const agentStore = {
     db.prepare('UPDATE agents SET prompt = ? WHERE public_id = ?').run(prompt, publicId);
   },
 
+  updateBio(publicId: string, bio: string | null): void {
+    const db = getDatabase();
+    db.prepare('UPDATE agents SET bio = ? WHERE public_id = ?').run(bio, publicId);
+  },
+
   updateAllowParallelToolCalls(publicId: string, allow: boolean): void {
     const db = getDatabase();
     db.prepare('UPDATE agents SET allow_parallel_tool_calls = ? WHERE public_id = ?').run(allow ? 1 : 0, publicId);

@@ -1,4 +1,4 @@
-import React, { createContext, use, useState } from 'react';
+import React, { createContext, use, useState, startTransition } from 'react';
 
 /**
  * Describes the currently active view in the app.
@@ -52,25 +52,35 @@ export function ActiveViewProvider({ children }: { children: React.ReactNode }) 
   };
 
   const openChat = (chatId: number) => {
-    setActiveView({ type: 'chat', chatId });
-    setSidebarView({ type: 'chats' });
-    setLastChatId(chatId);
+    startTransition(() => {
+      setActiveView({ type: 'chat', chatId });
+      setSidebarView({ type: 'chats' });
+      setLastChatId(chatId);
+    });
   };
 
   const openConfig = () => {
-    setActiveView({ type: 'config' });
+    startTransition(() => {
+      setActiveView({ type: 'config' });
+    });
   };
 
   const openAgentDetail = (agentPublicId: string) => {
-    setActiveView({ type: 'agent-detail', agentPublicId });
+    startTransition(() => {
+      setActiveView({ type: 'agent-detail', agentPublicId });
+    });
   };
 
   const openNewChat = () => {
-    setSidebarView({ type: 'new-chat' });
+    startTransition(() => {
+      setSidebarView({ type: 'new-chat' });
+    });
   };
 
   const showChatList = () => {
-    setSidebarView({ type: 'chats' });
+    startTransition(() => {
+      setSidebarView({ type: 'chats' });
+    });
   };
 
   const activeChatId = activeView?.type === 'chat' ? activeView.chatId : null;

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useActionState } from 'react';
+import { useEffect, useRef, useState, useActionState, startTransition } from 'react';
 import { Loader2, Trash2, Upload, X, ArrowLeft, MoreVertical, Check, Pencil, Save, Menu } from 'lucide-react';
 import type { Agent } from '../db/types';
 import AgentAvatar from '../components/AgentAvatar';
@@ -85,6 +85,7 @@ export default function AgentDetail({ agentPublicId }: { agentPublicId: string }
       if (!agent) return null;
       const updates: Array<Promise<void>> = [];
       const prompt = formData.get('prompt') as string;
+      const bio = formData.get('bio') as string | null;
       const allowParallel = formData.get('allowParallel') === 'true';
       const canRunCode = formData.get('canRunCode') === 'true';
       const model = formData.get('model') as string | null;
@@ -115,6 +116,9 @@ export default function AgentDetail({ agentPublicId }: { agentPublicId: string }
 
       if ((prompt ?? '') !== (agent.prompt ?? '')) {
         updates.push(window.db.agents.updatePrompt(agent.public_id, prompt ?? ''));
+      }
+      if ((bio ?? null) !== (agent.bio ?? null)) {
+        updates.push(window.db.agents.updateBio(agent.public_id, bio ?? null));
       }
       if (allowParallel !== (agent.allow_parallel_tool_calls === 1)) {
         updates.push(window.db.agents.updateAllowParallelToolCalls(agent.public_id, allowParallel));
@@ -173,7 +177,7 @@ export default function AgentDetail({ agentPublicId }: { agentPublicId: string }
       if (!agent) return null;
       if (!confirm('Delete this agent?')) return null;
       await window.db.agents.delete(agent.public_id);
-      setActiveView(null);
+      startTransition(() => setActiveView(null));
       return null;
     },
     null
@@ -253,7 +257,7 @@ export default function AgentDetail({ agentPublicId }: { agentPublicId: string }
         
         setDraft({
           prompt: data.prompt ?? '',
-          bio: '', // TODO: Initialize from agent.bio when backend is ready
+          bio: data.bio ?? '',
           allowParallelToolCalls: data.allow_parallel_tool_calls === 1,
           canRunCode: data.can_run_code === 1,
           permissions,
@@ -323,7 +327,7 @@ export default function AgentDetail({ agentPublicId }: { agentPublicId: string }
         
         setDraft({
           prompt: data.prompt ?? '',
-          bio: '', // TODO: Initialize from agent.bio when backend is ready
+          bio: data.bio ?? '',
           allowParallelToolCalls: data.allow_parallel_tool_calls === 1,
           canRunCode: data.can_run_code === 1,
           permissions,
@@ -355,6 +359,7 @@ export default function AgentDetail({ agentPublicId }: { agentPublicId: string }
   const canSave = (() => {
     if (!agent) return false;
     const promptChanged = (draft.prompt ?? '') !== (agent.prompt ?? '');
+    const bioChanged = (draft.bio ?? '') !== (agent.bio ?? '');
     const toolsChanged = !sameStringSet(selectedToolIds, originalToolIds);
     const allowParallelChanged = draft.allowParallelToolCalls !== (agent.allow_parallel_tool_calls === 1);
     const canRunCodeChanged = draft.canRunCode !== (agent.can_run_code === 1);
@@ -384,7 +389,7 @@ export default function AgentDetail({ agentPublicId }: { agentPublicId: string }
     }
     const permissionsChanged = !sameStringSet(newPerms, currentPerms);
     
-    return promptChanged || toolsChanged || allowParallelChanged || canRunCodeChanged || modelChanged || reasoningChanged || permissionsChanged;
+    return promptChanged || bioChanged || toolsChanged || allowParallelChanged || canRunCodeChanged || modelChanged || reasoningChanged || permissionsChanged;
   })();
 
   // React 19 compiler handles memoization - no need for useMemo
@@ -499,8 +504,8 @@ export default function AgentDetail({ agentPublicId }: { agentPublicId: string }
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <button
               type="button"
-              onClick={() => setActiveView(null)}
-              className="p-2 text-[#888888] hover:text-white hover:bg-[#2a2a2a] rounded-full transition-colors"
+              onClick={() => startTransition(() => setActiveView(null))}
+              className="p-2 text-[#888888] hover:text:white hover:bg-[#2a2a2a] rounded-full transition-colors"
               aria-label="Back"
               title="Back"
             >
@@ -542,7 +547,7 @@ export default function AgentDetail({ agentPublicId }: { agentPublicId: string }
               if (lastChatId !== null) {
                 openChat(lastChatId);
               } else {
-                setActiveView(null);
+                startTransition(() => setActiveView(null));
               }
             }}
             className="p-2 text-[#888888] hover:text-white hover:bg-[#2a2a2a] rounded-full transition-colors flex-shrink-0"
@@ -611,6 +616,7 @@ export default function AgentDetail({ agentPublicId }: { agentPublicId: string }
           ) : isEditing ? (
             <form action={saveAction}>
               <input type="hidden" name="prompt" value={draft.prompt} />
+              <input type="hidden" name="bio" value={draft.bio} />
               <input type="hidden" name="allowParallel" value={draft.allowParallelToolCalls.toString()} />
               <input type="hidden" name="canRunCode" value={draft.canRunCode.toString()} />
               <input type="hidden" name="model" value={draft.model || ''} />

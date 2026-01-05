@@ -47,6 +47,7 @@ export interface DbApi {
     create: (input: CreateAgentInput) => Promise<Agent>;
     updateName: (publicId: string, name: string) => Promise<void>;
     updatePrompt: (publicId: string, prompt: string) => Promise<void>;
+    updateBio: (publicId: string, bio: string | null) => Promise<void>;
     updateAllowParallelToolCalls: (publicId: string, allow: boolean) => Promise<void>;
     updateAvatarUrl: (publicId: string, avatarUrl: string | null) => Promise<void>;
     updateModel: (publicId: string, model: string | null) => Promise<void>;

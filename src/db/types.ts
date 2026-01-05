@@ -67,6 +67,7 @@ export interface Agent {
   public_id: string;
   name: string;
   prompt: string;
+  bio?: string | null;
   allow_parallel_tool_calls: number; // 0/1
   can_run_code: number; // 0/1
   permissions: string; // JSON array of permission flags, e.g., '["--allow-net=api.github.com", "--allow-read=/tmp"]'

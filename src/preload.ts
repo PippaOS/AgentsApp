@@ -40,6 +40,7 @@ contextBridge.exposeInMainWorld('db', {
     create: (input: { name: string; prompt?: string }) => ipcRenderer.invoke('db:agents:create', input),
     updateName: (publicId: string, name: string) => ipcRenderer.invoke('db:agents:updateName', publicId, name),
     updatePrompt: (publicId: string, prompt: string) => ipcRenderer.invoke('db:agents:updatePrompt', publicId, prompt),
+    updateBio: (publicId: string, bio: string | null) => ipcRenderer.invoke('db:agents:updateBio', publicId, bio),
     updateAllowParallelToolCalls: (publicId: string, allow: boolean) =>
       ipcRenderer.invoke('db:agents:updateAllowParallelToolCalls', publicId, allow),
     updateAvatarUrl: (publicId: string, avatarUrl: string | null) =>

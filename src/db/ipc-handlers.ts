@@ -158,6 +158,13 @@ export function registerDatabaseHandlers(): void {
     });
   });
 
+  ipcMain.handle('db:agents:updateBio', (_, publicId: string, bio: string | null) => {
+    agentStore.updateBio(publicId, bio);
+    BrowserWindow.getAllWindows().forEach(win => {
+      win.webContents.send('agents:updated');
+    });
+  });
+
   ipcMain.handle('db:agents:updateAllowParallelToolCalls', (_, publicId: string, allow: boolean) => {
     agentStore.updateAllowParallelToolCalls(publicId, allow);
     BrowserWindow.getAllWindows().forEach(win => {
