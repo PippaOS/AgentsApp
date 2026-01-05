@@ -6,6 +6,7 @@ import { useActiveView } from '../contexts/ActiveViewContext';
 import { useModelsStore } from '../stores/models-store';
 import { renderMarkdown } from '../utils/markdown';
 import { useClickOutside } from '../hooks/useClickOutside';
+import WorkspaceContextSelector from './agent-detail/WorkspaceContextSelector';
 
 function sameStringSet(a: string[], b: string[]): boolean {
   if (a.length !== b.length) return false;
@@ -1016,6 +1017,23 @@ export default function AgentDetail({ agentPublicId }: { agentPublicId: string }
               </div>
             </div>
           )}
+        </section>
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-[#aaaaaa]">Workspace</h2>
+          </div>
+          <WorkspaceContextSelector
+            agentPublicId={agent.public_id}
+            initialPinnedPaths={(() => {
+              try {
+                const parsed = agent.workspace_paths_json ? JSON.parse(agent.workspace_paths_json) : [];
+                return Array.isArray(parsed) ? parsed.map(String) : [];
+              } catch {
+                return [];
+              }
+            })()}
+          />
         </section>
 
           <section className="space-y-4">

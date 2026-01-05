@@ -54,6 +54,7 @@ export interface DbApi {
     updateReasoning: (publicId: string, reasoning: string | null) => Promise<void>;
     updateCanRunCode: (publicId: string, canRunCode: boolean) => Promise<void>;
     updatePermissions: (publicId: string, permissions: string[]) => Promise<void>;
+    updateWorkspacePaths: (publicId: string, paths: string[]) => Promise<void>;
     delete: (publicId: string) => Promise<void>;
     onUpdated: (callback: () => void) => () => void;
   };
@@ -207,6 +208,21 @@ export interface WorkspaceApi {
     error?: string;
     exitCode?: number;
   }>;
+  listDir: (req?: { relPath?: string }) => Promise<
+    | {
+        ok: true;
+        rootPath: string;
+        relPath: string;
+        entries: Array<{
+          name: string;
+          relPath: string;
+          kind: 'file' | 'dir' | 'other';
+          size: number | null;
+          mtimeMs: number | null;
+        }>;
+      }
+    | { ok: false; error: string }
+  >;
   onUpdated: (callback: (data: { ok: boolean; destPath: string }) => void) => () => void;
 }
 

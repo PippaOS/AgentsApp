@@ -53,6 +53,8 @@ contextBridge.exposeInMainWorld('db', {
       ipcRenderer.invoke('db:agents:updateCanRunCode', publicId, canRunCode),
     updatePermissions: (publicId: string, permissions: string[]) =>
       ipcRenderer.invoke('db:agents:updatePermissions', publicId, permissions),
+    updateWorkspacePaths: (publicId: string, paths: string[]) =>
+      ipcRenderer.invoke('db:agents:updateWorkspacePaths', publicId, paths),
     delete: (publicId: string) => ipcRenderer.invoke('db:agents:delete', publicId),
     onUpdated: (callback: () => void) => {
       const subscription = () => callback();
@@ -410,6 +412,7 @@ contextBridge.exposeInMainWorld('workspace', {
   selectSourceDir: () => ipcRenderer.invoke('workspace:selectSourceDir'),
   sync: (req: { sourcePath: string; destPath?: string; excludes?: string[]; deleteExtraneous?: boolean; rsyncPath?: string }) =>
     ipcRenderer.invoke('workspace:sync', req),
+  listDir: (req?: { relPath?: string }) => ipcRenderer.invoke('workspace:listDir', req ?? {}),
   onUpdated: (callback: (data: { ok: boolean; destPath: string }) => void) => {
     const subscription = (_event: IpcRendererEvent, data: { ok: boolean; destPath: string }) => callback(data);
     ipcRenderer.on('workspace:updated', subscription);

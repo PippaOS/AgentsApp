@@ -88,6 +88,12 @@ export const agentStore = {
     db.prepare('UPDATE agents SET permissions = ? WHERE public_id = ?').run(permissionsJson, publicId);
   },
 
+  updateWorkspacePaths(publicId: string, paths: string[]): void {
+    const db = getDatabase();
+    const json = JSON.stringify(paths);
+    db.prepare('UPDATE agents SET workspace_paths_json = ? WHERE public_id = ?').run(json, publicId);
+  },
+
   delete(publicId: string): void {
     const db = getDatabase();
     db.prepare('DELETE FROM agents WHERE public_id = ?').run(publicId);

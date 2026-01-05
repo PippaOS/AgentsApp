@@ -45,7 +45,7 @@ COPY --from=go-builder /out/runner /app/runner
 COPY --from=deno-installer /usr/local/deno/bin/deno /usr/local/bin/deno
 
 # Setting up the safehouse. Everything stays in its lane.
-RUN mkdir -p /workspace/src /tmp/deno \
+RUN mkdir -p /tmp/deno \
     && chown -R runner:runner /tmp/deno
 
 # Keep the mess in /tmp. If things go south, the whole stash disappears on reboot.

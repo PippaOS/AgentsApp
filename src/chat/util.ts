@@ -6,6 +6,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { app } from 'electron';
+import { getDefaultWorkspaceDestPath } from '../workspace-sync';
 import {
   secretStore,
   messageStore,
@@ -236,11 +237,22 @@ export function getToolsForChatCompletions(): ChatCompletionRequest['tools'] {
 export function getAgentCapabilities(agentPublicId: string): {
   canRunCode: boolean;
   prompt: string;
+  workspacePins: string[];
 } {
   const agent = agentStore.getByPublicId(agentPublicId);
+  let workspacePins: string[] = [];
+  try {
+    const parsed = (agent as any)?.workspace_paths_json ? JSON.parse((agent as any).workspace_paths_json) : [];
+    if (Array.isArray(parsed)) {
+      workspacePins = parsed.map(String);
+    }
+  } catch {
+    workspacePins = [];
+  }
   return {
     canRunCode: (agent as any)?.can_run_code === 1,
     prompt: (agent?.prompt ?? '').trim(),
+    workspacePins,
   };
 }
 
@@ -250,15 +262,179 @@ export function getAgentCapabilities(agentPublicId: string): {
 export function buildSystemMessage(
   agentPrompt: string,
   canRunCode: boolean,
+  workspacePins: string[] = [],
 ): ChatMessage {
-  const content = canRunCode
+  const workspaceSection = buildWorkspaceFilesSection(workspacePins);
+  const base = canRunCode
     ? `${agentPrompt}\n${toolCatalogSection(toolDefinitions, true)}`
     : agentPrompt;
+  const content = workspaceSection ? `${base}\n\n${workspaceSection}` : base;
 
   return {
     role: 'system',
     content,
   };
+}
+
+function normalizeWorkspaceRelPath(p: string): string | null {
+  const raw = String(p ?? '').trim().replaceAll('\\', '/');
+  if (!raw) return null;
+  const rel = raw.startsWith('/') ? raw.slice(1) : raw;
+  if (!rel || rel === '.' || rel.includes('\0')) return null;
+  const parts = rel.split('/').filter(Boolean);
+  if (parts.some((seg) => seg === '.' || seg === '..')) return null;
+  return parts.join('/');
+}
+
+function safeResolveUnderRoot(root: string, relPosix: string): string | null {
+  const abs = path.resolve(root, relPosix.split('/').join(path.sep));
+  const rootResolved = path.resolve(root);
+  if (abs === rootResolved) return abs;
+  const rootPrefix = rootResolved.endsWith(path.sep) ? rootResolved : rootResolved + path.sep;
+  if (!abs.startsWith(rootPrefix)) return null;
+  return abs;
+}
+
+function shouldExcludeWorkspaceName(name: string): boolean {
+  return (
+    name === 'node_modules' ||
+    name === '.git' ||
+    name === '.DS_Store' ||
+    name === '.vite' ||
+    name === '.devtools' ||
+    name === 'dist' ||
+    name === 'out'
+  );
+}
+
+function escapeXmlAttr(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('"', '&quot;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+}
+
+/**
+ * Expand pinned workspace paths into a flat list of file paths, then render as <file path="..."></file> tags.
+ */
+function buildWorkspaceFilesSection(pins: string[]): string {
+  const normalizedPins = pins
+    .map(normalizeWorkspaceRelPath)
+    .filter((x): x is string => Boolean(x));
+  if (normalizedPins.length === 0) return '';
+
+  const root = getDefaultWorkspaceDestPath();
+  const files = new Set<string>();
+  const MAX_FILES = 2000;
+
+  const addFile = (rel: string) => {
+    if (files.size >= MAX_FILES) return;
+    files.add(rel);
+  };
+
+  const walkDir = (absDir: string, relDir: string) => {
+    if (files.size >= MAX_FILES) return;
+    let dirents: fs.Dirent[];
+    try {
+      dirents = fs.readdirSync(absDir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const d of dirents) {
+      if (files.size >= MAX_FILES) return;
+      if (shouldExcludeWorkspaceName(d.name)) continue;
+      const childRel = relDir ? `${relDir}/${d.name}` : d.name;
+      const childAbs = path.join(absDir, d.name);
+      if (d.isDirectory()) {
+        walkDir(childAbs, childRel);
+      } else if (d.isFile()) {
+        addFile(childRel);
+      }
+    }
+  };
+
+  for (const pin of normalizedPins) {
+    if (files.size >= MAX_FILES) break;
+    const abs = safeResolveUnderRoot(root, pin);
+    if (!abs) continue;
+    let st: fs.Stats;
+    try {
+      st = fs.statSync(abs);
+    } catch {
+      continue;
+    }
+    if (st.isDirectory()) {
+      walkDir(abs, pin);
+    } else if (st.isFile()) {
+      addFile(pin);
+    }
+  }
+
+  if (files.size === 0) return '';
+
+  const sorted = Array.from(files).sort((a, b) => a.localeCompare(b));
+
+  // Read file contents with safety limits (to avoid blowing up the system prompt).
+  const MAX_TOTAL_CHARS = 400_000;
+  const MAX_FILE_CHARS = 80_000;
+  let totalChars = 0;
+
+  const cdata = (text: string): string => {
+    // Keep valid XML even if content contains "]]>"
+    const safe = text.replaceAll(']]>', ']]]]><![CDATA[>');
+    return `<![CDATA[${safe}]]>`;
+  };
+
+  const readTextFile = (absPath: string): { kind: 'ok'; text: string } | { kind: 'skip'; reason: string } => {
+    let buf: Buffer;
+    try {
+      buf = fs.readFileSync(absPath);
+    } catch {
+      return { kind: 'skip', reason: 'unreadable' };
+    }
+    // Basic binary detection: null bytes.
+    if (buf.includes(0)) return { kind: 'skip', reason: 'binary' };
+    // Decode as UTF-8 (good enough for now).
+    const text = buf.toString('utf-8');
+    return { kind: 'ok', text };
+  };
+
+  const blocks: string[] = [];
+  for (const rel of sorted) {
+    if (totalChars >= MAX_TOTAL_CHARS) break;
+    const abs = safeResolveUnderRoot(root, rel);
+    if (!abs) continue;
+
+    const read = readTextFile(abs);
+    if (read.kind === 'skip') {
+      // Still include the file tag so the model knows it exists.
+      blocks.push(`<file path="${escapeXmlAttr(rel)}" note="${escapeXmlAttr(read.reason)}"></file>`);
+      continue;
+    }
+
+    let text = read.text;
+    let truncated = false;
+    if (text.length > MAX_FILE_CHARS) {
+      text = text.slice(0, MAX_FILE_CHARS);
+      truncated = true;
+    }
+
+    // Enforce global budget.
+    const remaining = Math.max(0, MAX_TOTAL_CHARS - totalChars);
+    if (text.length > remaining) {
+      text = text.slice(0, remaining);
+      truncated = true;
+    }
+
+    totalChars += text.length;
+    const truncAttr = truncated ? ' truncated="true"' : '';
+    blocks.push(
+      `<file path="${escapeXmlAttr(rel)}"${truncAttr}>\n${cdata(text)}\n</file>`,
+    );
+  }
+
+  return `<workspace_files>\n${blocks.join('\n')}\n</workspace_files>`;
 }
 
 // ============================================================================

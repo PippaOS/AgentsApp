@@ -207,6 +207,13 @@ export function registerDatabaseHandlers(): void {
     });
   });
 
+  ipcMain.handle('db:agents:updateWorkspacePaths', (_, publicId: string, paths: string[]) => {
+    agentStore.updateWorkspacePaths(publicId, paths);
+    BrowserWindow.getAllWindows().forEach(win => {
+      win.webContents.send('agents:updated');
+    });
+  });
+
   ipcMain.handle('db:agents:delete', (_, publicId: string) => {
     agentStore.delete(publicId);
     BrowserWindow.getAllWindows().forEach(win => {

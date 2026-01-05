@@ -397,8 +397,9 @@ export async function streamChatCompletion(
     }
   }
   
-  const { canRunCode: initialCanRunCode, prompt: initialPrompt } = getAgentCapabilities(agentPublicId);
-  inputMessages.unshift(buildSystemMessage(initialPrompt, initialCanRunCode));
+  const { canRunCode: initialCanRunCode, prompt: initialPrompt, workspacePins: initialWorkspacePins } =
+    getAgentCapabilities(agentPublicId);
+  inputMessages.unshift(buildSystemMessage(initialPrompt, initialCanRunCode, initialWorkspacePins));
 
   // Tools are controlled solely by agent.can_run_code (re-evaluated per iteration).
   let tools = initialCanRunCode ? getToolsForChatCompletions() : [];
@@ -422,12 +423,12 @@ export async function streamChatCompletion(
       iteration++;
 
       // Agent settings can change mid-chat; re-read each iteration.
-      const { canRunCode, prompt: currentAgentPrompt } = getAgentCapabilities(agentPublicId);
+      const { canRunCode, prompt: currentAgentPrompt, workspacePins } = getAgentCapabilities(agentPublicId);
       tools = canRunCode ? getToolsForChatCompletions() : [];
 
       // Keep system prompt in sync with the current agent prompt + capabilities.
       if (inputMessages.length > 0 && inputMessages[0]?.role === 'system') {
-        inputMessages[0] = buildSystemMessage(currentAgentPrompt, canRunCode);
+        inputMessages[0] = buildSystemMessage(currentAgentPrompt, canRunCode, workspacePins);
       }
 
       // Per-iteration state

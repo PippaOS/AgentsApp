@@ -71,6 +71,7 @@ export interface Agent {
   allow_parallel_tool_calls: number; // 0/1
   can_run_code: number; // 0/1
   permissions: string; // JSON array of permission flags, e.g., '["--allow-net=api.github.com", "--allow-read=/tmp"]'
+  workspace_paths_json: string; // JSON array of workspace-relative paths (files and/or dirs)
   avatar_url?: string | null;
   model?: string | null;
   reasoning?: string | null;
