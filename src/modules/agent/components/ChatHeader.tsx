@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MoreVertical, Menu, Info } from 'lucide-react';
+import { MoreVertical, Menu, Info, Plus } from 'lucide-react';
 import AgentAvatar from '../../../components/AgentAvatar';
 import { useActiveView } from '../../../contexts/ActiveViewContext';
 import { useClickOutside } from '../../../hooks/useClickOutside';
@@ -19,8 +19,9 @@ export default function ChatHeader({
   model,
   onSearchClick,
 }: ChatHeaderProps) {
-  const { openAgentDetail, sidebarOpen, setSidebarOpen } = useActiveView();
+  const { openAgentDetail, sidebarOpen, setSidebarOpen, openChat } = useActiveView();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
   
   // Custom hook handles click-outside detection
   const [menuRef, buttonRef] = useClickOutside(
@@ -32,6 +33,17 @@ export default function ChatHeader({
     if (agentPublicId) {
       openAgentDetail(agentPublicId);
       setIsMenuOpen(false);
+    }
+  };
+
+  const handleNewChat = async () => {
+    if (!agentPublicId) return;
+    
+    try {
+      const chat = await window.chat.create({ agent_public_id: agentPublicId });
+      openChat(chat.id);
+    } catch (err) {
+      console.error('Failed to create new chat:', err);
     }
   };
 
@@ -64,6 +76,26 @@ export default function ChatHeader({
 
 
       <div className="flex items-center gap-1 ml-2 flex-shrink-0">
+        {agentPublicId && (
+          <div className="relative">
+            <button
+              onClick={handleNewChat}
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+              className="p-2 text-[#888888] hover:text-white hover:bg-[#2a2a2a] rounded-full transition-colors"
+              aria-label="New chat"
+            >
+              <Plus size={20} />
+            </button>
+            {showTooltip && (
+              <div
+                className="absolute right-0 top-full mt-1 bg-[#2a2a2a] border border-[#333333] rounded-lg shadow-lg px-3 py-1.5 z-50 whitespace-nowrap"
+              >
+                <span className="text-xs text-[#cccccc]">New Chat</span>
+              </div>
+            )}
+          </div>
+        )}
         <div className="relative">
           <button
             ref={buttonRef}
