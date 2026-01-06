@@ -8,8 +8,7 @@ interface ChatHeaderProps {
   agentName?: string | null;
   agentAvatarUrl?: string | null;
   agentPublicId?: string | null;
-  model?: string | null;
-  onSearchClick?: () => void;
+  model?: string | null;  
 }
 
 export default function ChatHeader({
@@ -17,7 +16,6 @@ export default function ChatHeader({
   agentAvatarUrl,
   agentPublicId,
   model,
-  onSearchClick,
 }: ChatHeaderProps) {
   const { openAgentDetail, sidebarOpen, setSidebarOpen, openChat } = useActiveView();
   const [isMenuOpen, setIsMenuOpen] = useState(false);

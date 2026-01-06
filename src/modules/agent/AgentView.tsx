@@ -53,10 +53,6 @@ function ChatHeaderComponent(props: { store: AgentInstanceStore }) {
       agentAvatarUrl={agentAvatarUrl}
       agentPublicId={agentPublicId}
       model={model}
-      onSearchClick={() => {
-        // TODO: Implement search functionality
-        console.log('Search clicked');
-      }}
     />
   );
 }
