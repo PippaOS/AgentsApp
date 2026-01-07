@@ -13,9 +13,9 @@ export default function Reasoning({
   // React 19: Compiler handles memoization automatically
   const renderedReasoning = renderMarkdown(reasoning);
 
-  // Keep Reasoning closed by default, even during streaming.
-  // The only thing that should open it is an explicit user toggle.
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  // Open Reasoning by default so users can see progress while streaming.
+  // It will stay open until manually closed by the user.
+  const [isOpen, setIsOpen] = useState<boolean>(true);
 
   // React 19: Ref callback with cleanup for event delegation
   // This co-locates DOM logic with the element lifecycle
@@ -107,7 +107,7 @@ export default function Reasoning({
       </summary>
       <div
         ref={reasoningRefCallback}
-        className="text-sm text-[#6d6d6d] markdown-content reasoning-markdown"
+        className="text-sm text-[#6d6d6d] markdown-content reasoning-markdown max-h-[15rem] overflow-y-auto sidebar-scrollbar pr-2"
         dangerouslySetInnerHTML={{ __html: renderedReasoning }}
       />
     </details>
