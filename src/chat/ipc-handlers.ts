@@ -68,17 +68,13 @@ export function registerChatHandlers(): void {
     return chatStore.getByPublicId(publicId);
   });
 
-  ipcMain.handle('chat:create', (_, input?: { title?: string; agent_public_id?: string }) => {
+  ipcMain.handle('chat:create', (_, input?: { agent_public_id?: string }) => {
     const result = chatStore.create(input);
     // Emit update event so sidebar refreshes
     BrowserWindow.getAllWindows().forEach(win => {
       win.webContents.send('chats:updated');
     });
     return result;
-  });
-
-  ipcMain.handle('chat:updateTitle', (_, publicId: string, title: string) => {
-    chatStore.updateTitle(publicId, title);
   });
 
   ipcMain.handle('chat:updateAgentPublicId', (_, publicId: string, agentPublicId: string | null) => {
@@ -648,7 +644,7 @@ export function registerChatHandlers(): void {
     const messagesToCopy = allMessages.slice(0, messageIndex);
 
     // Create new chat
-    const newChat = chatStore.create({ title: chat.title });
+    const newChat = chatStore.create({ agent_public_id: chat.agent_public_id || undefined });
 
     // Copy all messages before the target message
     for (const msg of messagesToCopy) {

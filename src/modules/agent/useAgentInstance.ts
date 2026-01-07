@@ -68,7 +68,6 @@ async function buildChatData(chat: Chat, messages: ExtendedMessage[], models: Ar
 
   return {
     id: chat.public_id,
-    title: chat.title,
     created_at: chat.created_at,
     agent_public_id: chat.agent_public_id ?? null,
     agent_name: agentName,

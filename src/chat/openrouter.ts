@@ -359,12 +359,6 @@ export async function streamChatCompletion(
     return;
   }
 
-  // Auto-set title from first message
-  if (!chat.title) {
-    const title = userContent.length > 30 ? userContent.substring(0, 30) : userContent;
-    chatStore.updateTitleById(chat.id, title);
-  }
-
   // Build content for storage: always use JSON array format
   const contentParts = buildContentParts(userContent, images);
   const storedContent = JSON.stringify(contentParts);

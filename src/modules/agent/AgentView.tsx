@@ -62,7 +62,6 @@ function AgentMessages(props: {
   onEntityClick?: (entityId: string, entityType: string) => void;
   onBranchFromMessage?: (messageId: string) => void;
 }) {
-  const chatTitle = useAgentInstanceStore(props.store, s => s.chatData?.title);
   const messages = useAgentInstanceStore(props.store, s => s.chatData?.messages ?? []);
   const streaming = useAgentInstanceStore(props.store, s => s.streaming, { equalityFn: agentShallowEqual });
 
@@ -70,7 +69,6 @@ function AgentMessages(props: {
     <MessageList
       messages={messages}
       streaming={streaming}
-      chatTitle={chatTitle}
       onEntityClick={props.onEntityClick}
       onBranchFromMessage={props.onBranchFromMessage}
     />

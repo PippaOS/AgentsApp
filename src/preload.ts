@@ -114,8 +114,7 @@ contextBridge.exposeInMainWorld('chat', {
   getAllWithAgent: () => ipcRenderer.invoke('chat:getAllWithAgent'),
   getById: (id: number) => ipcRenderer.invoke('chat:getById', id),
   getByPublicId: (publicId: string) => ipcRenderer.invoke('chat:getByPublicId', publicId),
-  create: (input?: { title?: string; agent_public_id?: string }) => ipcRenderer.invoke('chat:create', input),
-  updateTitle: (publicId: string, title: string) => ipcRenderer.invoke('chat:updateTitle', publicId, title),
+  create: (input?: { agent_public_id?: string }) => ipcRenderer.invoke('chat:create', input),
   updateAgentPublicId: (publicId: string, agentPublicId: string | null) =>
     ipcRenderer.invoke('chat:updateAgentPublicId', publicId, agentPublicId),
   delete: (publicId: string) => ipcRenderer.invoke('chat:delete', publicId),

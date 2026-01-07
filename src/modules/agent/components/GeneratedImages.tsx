@@ -15,10 +15,9 @@ interface GeneratedImagesProps {
     url: string; // Base64 data URL
   }>;
   isStreaming?: boolean;
-  chatTitle?: string; // Chat title for default filename
 }
 
-export default function GeneratedImages({ images, isStreaming = false, chatTitle }: GeneratedImagesProps) {
+export default function GeneratedImages({ images, isStreaming = false }: GeneratedImagesProps) {
   const [savingIndex, setSavingIndex] = useState<number | null>(null);
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
   const [showFilenameDialog, setShowFilenameDialog] = useState<number | null>(null);
@@ -34,16 +33,10 @@ export default function GeneratedImages({ images, isStreaming = false, chatTitle
     const imageType = match ? match[1].toLowerCase() : 'png';
     const extension = imageType === 'jpeg' ? '.jpg' : `.${imageType}`;
     
-    // Generate UUID and use first part (using browser crypto API)
-    const uuid = crypto.randomUUID();
-    const firstPart = uuid.split('-')[0];
+    // Generate random ID for filename
+    const randomId = crypto.randomUUID().split('-')[0];
     
-    // Use chat title if available, otherwise use generic name
-    const baseName = chatTitle 
-      ? chatTitle.replace(/[^a-z0-9]/gi, '-').toLowerCase().substring(0, 30)
-      : 'chat-image';
-    
-    return `${baseName}-img-${firstPart}${extension}`;
+    return `image-${randomId}${extension}`;
   };
 
   const handleSaveClick = (index: number, imageUrl: string) => {

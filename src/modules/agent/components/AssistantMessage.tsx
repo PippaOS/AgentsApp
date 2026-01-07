@@ -9,7 +9,6 @@ import RunCode from './RunCode';
 
 interface AssistantMessageProps {
   message: ChatMessage;
-  chatTitle?: string;
   isLastAssistantMessage?: boolean;
 }
 
@@ -70,7 +69,7 @@ function extractGeneratedImages(message: ChatMessage): Array<{ id: string; url: 
   return images;
 }
 
-export default function AssistantMessage({ message, chatTitle, isLastAssistantMessage }: AssistantMessageProps) {
+export default function AssistantMessage({ message, isLastAssistantMessage }: AssistantMessageProps) {
   const [copied, setCopied] = useState(false);
   const [, startTransition] = useTransition();
   const copyTimeoutRef = useRef<number | undefined>(undefined);
@@ -244,7 +243,7 @@ export default function AssistantMessage({ message, chatTitle, isLastAssistantMe
       {/* Image generation message */}
       {isImageGeneration && generatedImages.length > 0 && (
         <div className="assistant-bubble">
-          <GeneratedImages images={generatedImages} chatTitle={chatTitle} />
+          <GeneratedImages images={generatedImages} />
         </div>
       )}
 

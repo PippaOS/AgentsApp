@@ -5,13 +5,12 @@ import AssistantMessage from './AssistantMessage';
 
 interface MessageProps {
   message: ChatMessage;
-  chatTitle?: string;
   onEntityClick?: (entityId: string, entityType: string) => void;
   onBranchFromMessage?: (messageId: string) => void;
   isLastAssistantMessage?: boolean;
 }
 
-export default function  Message({ message, chatTitle, onEntityClick, onBranchFromMessage, isLastAssistantMessage }: MessageProps) {
+export default function  Message({ message, onEntityClick, onBranchFromMessage, isLastAssistantMessage }: MessageProps) {
   // Chat context message (attachment)
   if (message.message_type === 'chat_context' && message.entity) {
     return (
@@ -26,7 +25,7 @@ export default function  Message({ message, chatTitle, onEntityClick, onBranchFr
 
   // Assistant message
   if (message.role === 'assistant') {
-    return <AssistantMessage message={message} chatTitle={chatTitle} isLastAssistantMessage={isLastAssistantMessage} />;
+    return <AssistantMessage message={message} isLastAssistantMessage={isLastAssistantMessage} />;
   }
 
   // Fallback for other roles (should not normally render)

@@ -12,7 +12,6 @@ import UserMessage from './UserMessage';
 interface MessageListProps {
   messages: ChatMessage[];
   streaming: StreamingState;
-  chatTitle?: string;
   onEntityClick?: (entityId: string, entityType: string) => void;
   onBranchFromMessage?: (messageId: string) => void;
 }
@@ -20,7 +19,6 @@ interface MessageListProps {
 export default function MessageList({
   messages,
   streaming,
-  chatTitle,
   onEntityClick,
   onBranchFromMessage,
 }: MessageListProps) {
@@ -228,7 +226,6 @@ export default function MessageList({
             <Message
               key={msg.id}
               message={msg}
-              chatTitle={chatTitle}
               onEntityClick={onEntityClick}
               onBranchFromMessage={onBranchFromMessage}
               isLastAssistantMessage={false}
@@ -255,7 +252,6 @@ export default function MessageList({
         {!isStreaming && stageAfterUser.length > 0 && (
           <StageMessages
             messages={stageAfterUser}
-            chatTitle={chatTitle}
             onEntityClick={onEntityClick}
             onBranchFromMessage={onBranchFromMessage}
           />
@@ -265,7 +261,6 @@ export default function MessageList({
         {isStreaming && (
           <StreamingDisplay
             events={streaming.events}
-            chatTitle={chatTitle}
           />
         )}
       </div>
@@ -276,12 +271,10 @@ export default function MessageList({
 // React 19: Sub-component for stage messages (last user message + response)
 function StageMessages({
   messages,
-  chatTitle,
   onEntityClick,
   onBranchFromMessage,
 }: {
   messages: ChatMessage[];
-  chatTitle?: string;
   onEntityClick?: (entityId: string, entityType: string) => void;
   onBranchFromMessage?: (messageId: string) => void;
 }) {
@@ -295,7 +288,6 @@ function StageMessages({
           <Message
             key={msg.id}
             message={msg}
-            chatTitle={chatTitle}
             onEntityClick={onEntityClick}
             onBranchFromMessage={onBranchFromMessage}
             isLastAssistantMessage={isLastAssistantMessage}
@@ -307,7 +299,7 @@ function StageMessages({
 }
 
 // React 19: Sub-component allows compiler to optimize streaming logic separately from history logic
-function StreamingDisplay({ events, chatTitle }: { events: StreamingState['events']; chatTitle?: string }) {
+function StreamingDisplay({ events }: { events: StreamingState['events'] }) {
   // React 19: Preload images as they arrive in the stream for faster display
   useEffect(() => {
     for (const event of events) {
@@ -474,7 +466,6 @@ function StreamingDisplay({ events, chatTitle }: { events: StreamingState['event
                       url,
                     }))}
                     isStreaming={true}
-                    chatTitle={chatTitle}
                   />
                 </div>
               );

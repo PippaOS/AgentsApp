@@ -53,7 +53,6 @@ export const chatStore = {
   create(input: CreateChatInput = {}): Chat {
     const db = getDatabase();
     const publicId = nanoid();
-    const title = input.title || '';
     const agentPublicId = input.agent_public_id || null;
     
     // If creating a chat with an agent, copy model and reasoning from the agent
@@ -68,22 +67,12 @@ export const chatStore = {
     }
     
     const result = db.prepare(`
-      INSERT INTO chats (public_id, title, agent_public_id, model, reasoning)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO chats (public_id, agent_public_id, model, reasoning)
+      VALUES (?, ?, ?, ?)
       RETURNING *
-    `).get(publicId, title, agentPublicId, model, reasoning) as Chat;
+    `).get(publicId, agentPublicId, model, reasoning) as Chat;
     
     return result;
-  },
-
-  updateTitle(publicId: string, title: string): void {
-    const db = getDatabase();
-    db.prepare('UPDATE chats SET title = ? WHERE public_id = ?').run(title, publicId);
-  },
-
-  updateTitleById(id: number, title: string): void {
-    const db = getDatabase();
-    db.prepare('UPDATE chats SET title = ? WHERE id = ?').run(title, id);
   },
 
   updateAgentPublicId(publicId: string, agentPublicId: string | null): void {

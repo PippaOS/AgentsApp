@@ -88,7 +88,6 @@ export interface ChatApi {
   getById: (id: number) => Promise<Chat | null>;
   getByPublicId: (publicId: string) => Promise<Chat | null>;
   create: (input?: CreateChatInput) => Promise<Chat>;
-  updateTitle: (publicId: string, title: string) => Promise<void>;
   updateAgentPublicId: (publicId: string, agentPublicId: string | null) => Promise<void>;
   delete: (publicId: string) => Promise<void>;
   onUpdated: (callback: () => void) => () => void;

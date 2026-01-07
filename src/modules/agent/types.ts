@@ -5,7 +5,6 @@
 
 export interface ChatData {
   id: string;
-  title: string;
   created_at: string;
   agent_public_id?: string | null;
   agent_name?: string | null;

@@ -162,7 +162,6 @@ export interface OpenRouterModelsResponse {
 export interface Chat {
   id: number;
   public_id: string;
-  title: string;
   agent_public_id?: string | null;
   model?: string | null;
   reasoning?: string | null;
@@ -178,7 +177,6 @@ export interface ChatWithAgent extends Chat {
 }
 
 export interface CreateChatInput {
-  title?: string;
   agent_public_id?: string;
 }
 
