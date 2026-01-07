@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Info, Plus, Settings, X, MoreVertical, Archive, Trash2 } from 'lucide-react';
+import { Info, Plus, Settings, X, MoreVertical, Archive, Trash2, Copy } from 'lucide-react';
 import type { ChatWithAgent } from '../../db/types';
 import { useActiveView } from '../../contexts/ActiveViewContext';
 import { useClickOutsideSelectors } from '../../hooks/useClickOutsideSelectors';
@@ -18,6 +18,7 @@ function ChatRowMenu({
   onClose,
   onDelete,
   onNewChat,
+  onClone,
   openAgentDetail,
 }: {
   chat: ChatWithAgent | undefined;
@@ -25,6 +26,7 @@ function ChatRowMenu({
   onClose: () => void;
   onDelete: (chatId: number) => void;
   onNewChat: (agentPublicId: string) => void;
+  onClone: (agentPublicId: string, agentName: string) => void;
   openAgentDetail: (agentPublicId: string) => void;
 }) {
   if (!chat) return null;
@@ -68,6 +70,20 @@ function ChatRowMenu({
           >
             <Info size={16} className="text-[#cccccc]" />
             Agent info
+          </button>
+          <button
+            type="button"
+            className="code-menu-item w-full px-3 py-2 text-left text-sm text-[#cccccc] hover:bg-[#333333] hover:text-white transition-colors cursor-pointer flex items-center gap-2"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (chat.agent_public_id) {
+                onClone(chat.agent_public_id, chat.agent_name || 'Agent');
+              }
+              onClose();
+            }}
+          >
+            <Copy size={16} className="text-[#cccccc]" />
+            Clone Agent
           </button>
         </>
       )}
@@ -204,6 +220,19 @@ export default function ChatList() {
     }
   };
 
+  const handleCloneAgent = async (agentPublicId: string, agentName: string) => {
+    try {
+      const defaultName = `${agentName} (Copy)`;
+      const clonedAgent = await window.db.agents.clone(agentPublicId, defaultName);
+      
+      // Switch to the new agent's details immediately 
+      // so they can see the clone was successful
+      openAgentDetail(clonedAgent.public_id);
+    } catch (err) {
+      console.error('Failed to clone agent:', err);
+    }
+  };
+
   // Ref callback with cleanup (React 19 pattern)
   const handleMenuButtonRef = (chatId: number, el: HTMLButtonElement | null) => {
     if (el) {
@@ -305,6 +334,7 @@ export default function ChatList() {
           onClose={closeMenu}
           onDelete={handleDeleteChat}
           onNewChat={handleNewChatWithAgent}
+          onClone={handleCloneAgent}
           openAgentDetail={openAgentDetail}
         />
       )}

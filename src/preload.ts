@@ -38,6 +38,7 @@ contextBridge.exposeInMainWorld('db', {
     getAll: () => ipcRenderer.invoke('db:agents:getAll'),
     getByPublicId: (publicId: string) => ipcRenderer.invoke('db:agents:getByPublicId', publicId),
     create: (input: { name: string; prompt?: string }) => ipcRenderer.invoke('db:agents:create', input),
+    clone: (sourcePublicId: string, newName: string) => ipcRenderer.invoke('db:agents:clone', sourcePublicId, newName),
     updateName: (publicId: string, name: string) => ipcRenderer.invoke('db:agents:updateName', publicId, name),
     updatePrompt: (publicId: string, prompt: string) => ipcRenderer.invoke('db:agents:updatePrompt', publicId, prompt),
     updateBio: (publicId: string, bio: string | null) => ipcRenderer.invoke('db:agents:updateBio', publicId, bio),

@@ -144,6 +144,15 @@ export function registerDatabaseHandlers(): void {
     return result;
   });
 
+  ipcMain.handle('db:agents:clone', (_, sourcePublicId: string, newName: string) => {
+    const result = agentStore.clone(sourcePublicId, newName);
+    // Notify windows that agents have been updated so the UI refreshes
+    BrowserWindow.getAllWindows().forEach(win => {
+      win.webContents.send('agents:updated');
+    });
+    return result;
+  });
+
   ipcMain.handle('db:agents:updateName', (_, publicId: string, name: string) => {
     agentStore.updateName(publicId, name);
     BrowserWindow.getAllWindows().forEach(win => {

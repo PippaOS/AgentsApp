@@ -94,6 +94,59 @@ export const agentStore = {
     db.prepare('UPDATE agents SET workspace_paths_json = ? WHERE public_id = ?').run(json, publicId);
   },
 
+  clone(sourcePublicId: string, newName: string): Agent {
+    const db = getDatabase();
+
+    // Run everything in a transaction to ensure tool links are also copied correctly
+    const tx = db.transaction(() => {
+      const source = this.getByPublicId(sourcePublicId);
+      if (!source) throw new Error('Source agent not found');
+
+      const publicId = nanoid();
+
+      // 1. Insert the new agent record copying all properties except ID and Public ID
+      const newAgent = db
+        .prepare(
+          `
+        INSERT INTO agents (
+          public_id, name, prompt, bio, allow_parallel_tool_calls,
+          avatar_url, model, reasoning, can_run_code, permissions, workspace_paths_json
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        RETURNING *
+      `,
+        )
+        .get(
+          publicId,
+          newName,
+          source.prompt,
+          source.bio ?? null,
+          source.allow_parallel_tool_calls,
+          source.avatar_url ?? null,
+          source.model ?? null,
+          source.reasoning ?? null,
+          source.can_run_code,
+          source.permissions,
+          source.workspace_paths_json,
+        ) as Agent;
+
+      // 2. Copy tool associations from the source agent to the new agent
+      // We fetch the tool IDs associated with the source and insert them for the new agent
+      db.prepare(
+        `
+        INSERT INTO agent_tools (agent_id, tool_id, created_at)
+        SELECT ?, tool_id, datetime('now')
+        FROM agent_tools
+        WHERE agent_id = ?
+      `,
+      ).run(newAgent.id, source.id);
+
+      return newAgent;
+    });
+
+    return tx();
+  },
+
   delete(publicId: string): void {
     const db = getDatabase();
     db.prepare('DELETE FROM agents WHERE public_id = ?').run(publicId);

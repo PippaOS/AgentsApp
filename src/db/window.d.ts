@@ -45,6 +45,7 @@ export interface DbApi {
     getAll: () => Promise<Agent[]>;
     getByPublicId: (publicId: string) => Promise<Agent | null>;
     create: (input: CreateAgentInput) => Promise<Agent>;
+    clone: (sourcePublicId: string, newName: string) => Promise<Agent>;
     updateName: (publicId: string, name: string) => Promise<void>;
     updatePrompt: (publicId: string, prompt: string) => Promise<void>;
     updateBio: (publicId: string, bio: string | null) => Promise<void>;

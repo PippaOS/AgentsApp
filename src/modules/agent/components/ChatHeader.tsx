@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MoreVertical, Menu, Info, Plus } from 'lucide-react';
+import { MoreVertical, Menu, Info, Plus, Copy } from 'lucide-react';
 import AgentAvatar from '../../../components/AgentAvatar';
 import { useActiveView } from '../../../contexts/ActiveViewContext';
 import { useClickOutside } from '../../../hooks/useClickOutside';
@@ -42,6 +42,23 @@ export default function ChatHeader({
       openChat(chat.id);
     } catch (err) {
       console.error('Failed to create new chat:', err);
+    }
+  };
+
+  const handleCloneAgent = async () => {
+    if (!agentPublicId) return;
+    
+    try {
+      // Use a default suffix instead of prompt()
+      const defaultName = `${agentName} (Copy)`;
+      
+      const clonedAgent = await window.db.agents.clone(agentPublicId, defaultName);
+      setIsMenuOpen(false);
+      
+      // Immediately open the detail view so the user can rename/customize it
+      openAgentDetail(clonedAgent.public_id);
+    } catch (err) {
+      console.error('Failed to clone agent:', err);
     }
   };
 
@@ -115,6 +132,14 @@ export default function ChatHeader({
               >
                 <Info size={16} className="text-[#cccccc]" />
                 Agent info
+              </button>
+              <button
+                onClick={handleCloneAgent}
+                disabled={!agentPublicId}
+                className="w-full px-3 py-2 text-left text-sm text-[#cccccc] hover:bg-[#333333] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-2"
+              >
+                <Copy size={16} className="text-[#cccccc]" />
+                Clone Agent
               </button>
             </div>
           )}
